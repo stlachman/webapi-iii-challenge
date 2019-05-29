@@ -28,11 +28,17 @@ router.get("/", (req, res) => {
 
 // GET User
 router.get("/:id", validateUserId, (req, res) => {
-  console.log(req.user);
   res.status(200).json(req.user);
 });
 
-router.get("/:id/posts", (req, res) => {});
+// GET Posts of User
+router.get("/:id/posts", validateUserId, (req, res) => {
+  Users.getUserPosts(req.user.id)
+    .then(userPosts => {
+      res.status(200).json(userPosts);
+    })
+    .catch(err => res.status(500).json({ message: "error retrieving posts" }));
+});
 
 // DELETE User
 router.delete("/:id", validateUserId, (req, res) => {
