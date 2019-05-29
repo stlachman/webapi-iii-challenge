@@ -28,14 +28,32 @@ router.get("/", (req, res) => {
 
 // GET User
 router.get("/:id", validateUserId, (req, res) => {
+  console.log(req.user);
   res.status(200).json(req.user);
 });
 
 router.get("/:id/posts", (req, res) => {});
 
-router.delete("/:id", (req, res) => {});
+// DELETE User
+router.delete("/:id", validateUserId, (req, res) => {
+  Users.remove(req.user.id)
+    .then(deletedUser => {
+      console.log(deletedUser);
+      res.status(204).end();
+    })
+    .catch(err => res.status(500).json({ message: "error deleting user" }));
+});
 
-router.put("/:id", (req, res) => {});
+// PUT Edit User
+router.put("/:id", validateUser, validateUserId, (req, res) => {
+  const updatedUser = req.body;
+  Users.update(req.user.id, updatedUser)
+    .then(user => {
+      console.log(updatedUser);
+      res.status(201).json(user);
+    })
+    .catch(err => res.status(500).json({ message: "error updating user" }));
+});
 
 //custom middleware
 
