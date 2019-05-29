@@ -27,6 +27,7 @@ router.delete("/:id", validatePostId, (req, res) => {
     });
 });
 
+// PUT post
 router.put("/:id", validatePostId, validatePost, (req, res) => {
   const updatedPost = req.body;
   Posts.update(req.post.id, updatedPost)
