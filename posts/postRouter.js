@@ -2,6 +2,7 @@ const router = require("express").Router();
 
 const Posts = require("../posts/postDb.js");
 
+// GET all posts
 router.get("/", (req, res) => {
   Posts.get()
     .then(posts => {
@@ -10,13 +11,28 @@ router.get("/", (req, res) => {
     .catch(err => res.status(500).json({ message: "Error retrieving posts." }));
 });
 
+// GET post by id
 router.get("/:id", validatePostId, (req, res) => {
   res.status(200).json(req.post);
 });
 
-router.delete("/:id", (req, res) => {});
+// DELETE post
+router.delete("/:id", validatePostId, (req, res) => {
+  Posts.remove(req.post.id)
+    .then(deletedPost => {
+      res.status(204).end();
+    })
+    .catch(err => {
+      res.status(500).json({ message: "Error deleting post" });
+    });
+});
 
-router.put("/:id", (req, res) => {});
+router.put("/:id", validatePostId, validatePost, (req, res) => {
+  const updatedPost = req.body;
+  Posts.update(req.post.id, updatedPost)
+    .then(update => res.status(201).json(updatedPost))
+    .catch(err => res.status(500).json({ message: "Error updating post" }));
+});
 
 // custom middleware
 
@@ -34,6 +50,16 @@ function validatePostId(req, res, next) {
     .catch(err => {
       res.status(500).json({ messaeg: "Error retrieving that post" });
     });
+}
+
+function validatePost(req, res, next) {
+  if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
+    res.status(400).json({ message: "missing post data" });
+  } else if (!req.body.text) {
+    res.status(400).json({ message: "missing required text field" });
+  } else {
+    next();
+  }
 }
 
 module.exports = router;
