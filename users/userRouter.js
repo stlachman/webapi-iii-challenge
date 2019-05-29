@@ -26,7 +26,10 @@ router.get("/", (req, res) => {
     });
 });
 
-router.get("/:id", (req, res) => {});
+// GET User
+router.get("/:id", validateUserId, (req, res) => {
+  res.status(200).json(req.user);
+});
 
 router.get("/:id/posts", (req, res) => {});
 
@@ -36,7 +39,19 @@ router.put("/:id", (req, res) => {});
 
 //custom middleware
 
-function validateUserId(req, res, next) {}
+function validateUserId(req, res, next) {
+  const userId = req.params.id;
+  Users.getById(userId)
+    .then(user => {
+      if (user) {
+        req.user = user;
+        next();
+      } else {
+        res.status(400).json({ message: "invalid user id" });
+      }
+    })
+    .catch(err => res.status(500).json({ message: "error retrieving user" }));
+}
 
 function validateUser(req, res, next) {
   // Check if object is empty
