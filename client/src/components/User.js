@@ -8,6 +8,7 @@ class User extends React.Component {
     this.state = {
       user: "",
       error: "",
+      posts: [],
       fetchingUser: true
     };
   }
@@ -15,9 +16,13 @@ class User extends React.Component {
   componentDidMount() {
     const id = this.props.match.params.id;
     return axios
-      .get(`http://localhost:4000/api/users/${id}`)
+      .get(`http://localhost:4000/api/users/${id}/posts`)
       .then(res => {
-        this.setState({ user: res.data.name, fetchingUser: false });
+        this.setState({
+          user: res.data[0].postedBy,
+          posts: res.data,
+          fetchingUser: false
+        });
       })
       .catch(err => this.setState({ error: err.message, fetchingUser: false }));
   }
@@ -29,11 +34,22 @@ class User extends React.Component {
           <h2>Loading User Data..</h2>
         </div>
       );
+    } else if (this.state.error) {
+      return (
+        <div>
+          <h2>{this.state.error}</h2>
+        </div>
+      );
     }
     return (
       <div>
-        {this.state.user && <h2>{this.state.user}</h2>}
-        {this.state.error && <h2>{this.state.error}</h2>}
+        <h2>Quotes from {this.state.user}</h2>
+        <ul>
+          {this.state.posts &&
+            this.state.posts.map(post => {
+              return <li key={post.id}>{post.text}</li>;
+            })}
+        </ul>
       </div>
     );
   }

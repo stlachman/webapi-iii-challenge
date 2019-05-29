@@ -8,7 +8,8 @@ class UserList extends React.Component {
 
     this.state = {
       users: "",
-      error: ""
+      error: "",
+      fetchingUsers: true
     };
   }
 
@@ -16,13 +17,13 @@ class UserList extends React.Component {
     return axios
       .get(`http://localhost:4000/api/users`)
       .then(users => {
-        this.setState({ users: users.data });
+        this.setState({ users: users.data, fetchingUsers: false });
       })
       .catch(err => console.log(err));
   }
 
   render() {
-    if (!this.state.users) {
+    if (this.state.fetchingUsers) {
       return (
         <div>
           <h2>Loading List of Users</h2>
